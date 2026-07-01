@@ -14,8 +14,10 @@
 
 <body class="antialiased bg-gray-50 text-gray-900 flex">
     @auth
-        <livewire:layout.sidebar />
-        <main class="flex-1 ml-64 min-h-screen">
+        <div class="no-print">
+            <livewire:layout.sidebar />
+        </div>
+        <main class="flex-1 ml-64 min-h-screen print-only-container">
             <div class="p-8">
                 {{ $slot }}
             </div>

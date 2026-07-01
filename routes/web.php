@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Route;
 Route::livewire('/', 'pages::auth.login')->name('login');
 
 
-use App\Livewire\Dashboard;
 
 Route::middleware(['auth'])->group(function () {
     Route::livewire('/dashboard', 'pages::dashboard')->name('dashboard');
@@ -21,4 +20,11 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('/products', 'pages::products.index')->name('products.index');
     Route::livewire('/products/create', 'pages::products.create')->name('products.create');
     Route::livewire('/products/{product}/edit', 'pages::products.edit')->name('products.edit');
+
+    // Orders route
+    Route::livewire('/orders', 'pages::orders.index')->name('orders.index');
+    Route::livewire('/orders/create', 'pages::orders.create')->name('orders.create');
+
+    // Reports route
+    Route::livewire('/reports', 'pages::reports.index')->name('reports.index');
 });
