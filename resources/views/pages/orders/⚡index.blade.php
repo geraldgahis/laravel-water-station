@@ -158,7 +158,8 @@ new class extends Component {
                                 <div class="font-medium text-gray-900">
                                     ₱{{ number_format(optional($order->payment)->amount ?? 0, 2) }}</div>
                                 <div class="text-gray-500 text-xs mt-0.5 uppercase">
-                                    {{ optional($order->payment)->method ?? 'Unpaid' }}</div>
+                                    {{ optional($order->payment)->method ?? 'Unpaid' }}
+                                </div>
                             </td>
                             <td class="px-6 py-4">
                                 @if($order->status === 'pending')
@@ -180,23 +181,30 @@ new class extends Component {
                             </td>
 
                             <td class="px-6 py-4 text-right whitespace-nowrap">
+                                @if($order->status !== 'cancelled')
+                                    <a href="{{ route('orders.edit', $order->id) }}"
+                                        class="text-gray-600 hover:text-blue-800 font-medium text-xs bg-gray-50 px-2.5 py-1.5 rounded-md border border-gray-200 mr-2 transition-colors">
+                                        Edit
+                                    </a>
+                                @endif
+
                                 @if($order->status === 'pending')
                                     <button wire:click="updateStatus({{ $order->id }}, 'dispatched')"
-                                        class="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded border border-blue-200 mr-2">
+                                        class="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded border border-blue-200 mr-1">
                                         Dispatch
                                     </button>
                                     <button wire:click="cancelOrder({{ $order->id }})"
-                                        wire:confirm="Are you sure you want to cancel this order? The stock will be returned to your inventory."
+                                        wire:confirm="Are you sure you want to cancel this order? The stock will be returned."
                                         class="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded border border-red-200">
                                         Cancel
                                     </button>
                                 @elseif($order->status === 'dispatched')
                                     <button wire:click="updateStatus({{ $order->id }}, 'delivered')"
-                                        class="text-green-600 hover:text-green-800 font-medium text-xs bg-green-50 px-2 py-1 rounded border border-green-200 mr-2">
+                                        class="text-green-600 hover:text-green-800 font-medium text-xs bg-green-50 px-2 py-1 rounded border border-green-200 mr-1">
                                         Mark Delivered
                                     </button>
                                     <button wire:click="cancelOrder({{ $order->id }})"
-                                        wire:confirm="Are you sure you want to cancel this order? The stock will be returned to your inventory."
+                                        wire:confirm="Are you sure you want to cancel this order? The stock will be returned."
                                         class="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded border border-red-200">
                                         Cancel
                                     </button>

@@ -120,7 +120,8 @@ new class extends Component {
                                     Delete
                                 </button>
 
-                                <a href="#" class="text-gray-500 hover:text-gray-700 font-medium">Orders</a>
+                                <a href="{{ route('customers.show', $customer->id) }}"
+                                    class="text-gray-500 hover:text-blue-600 font-medium transition-colors">Orders</a>
                             </td>
                         </tr>
                     @empty

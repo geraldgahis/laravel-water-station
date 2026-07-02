@@ -35,17 +35,16 @@ new class extends Component {
         $start = Carbon::parse($this->startDate)->startOfDay();
         $end = Carbon::parse($this->endDate)->endOfDay();
 
-        // 1. UPDATED Financial Queries (Ignores cancelled orders!)
+        // 1. UPDATED Financial Queries
         $paymentsQuery = Payment::whereBetween('paid_at', [$start, $end])
             ->where('payment_status', 'paid')
             ->whereHas('order', function ($query) {
-                // This is the magic line that filters out cancelled orders
                 $query->where('status', '!=', 'cancelled');
             });
 
         $totalSales = (clone $paymentsQuery)->sum('amount');
         $cashSales = (clone $paymentsQuery)->where('method', 'cash')->sum('amount');
-        $gcashSales = (clone $paymentsQuery)->where('method', 'gcash')->sum('amount');
+        $digitalSales = (clone $paymentsQuery)->whereIn('method', ['gcash', 'bank_transfer'])->sum('amount');
 
         // 2. Order Volume Queries
         $ordersQuery = Order::whereBetween('created_at', [$start, $end]);
@@ -67,7 +66,7 @@ new class extends Component {
         return compact(
             'totalSales',
             'cashSales',
-            'gcashSales',
+            'digitalSales',
             'totalOrders',
             'deliveredOrders',
             'cancelledOrders',
@@ -160,23 +159,35 @@ new class extends Component {
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
         <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
             <span class="text-sm font-medium text-gray-500">Total Sales</span>
             <div class="text-3xl font-black text-blue-600 mt-1 tracking-tight">₱{{ number_format($totalSales, 2) }}
             </div>
         </div>
+
         <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <span class="text-sm font-medium text-gray-500">Cash Received</span>
+            <span class="text-sm font-medium text-gray-500">Physical Cash</span>
             <div class="text-3xl font-bold text-gray-900 mt-1 tracking-tight">₱{{ number_format($cashSales, 2) }}</div>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <span class="text-sm font-medium text-gray-500">GCash Received</span>
-            <div class="text-3xl font-bold text-gray-900 mt-1 tracking-tight">₱{{ number_format($gcashSales, 2) }}</div>
+
+        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+            <div>
+                <span class="text-sm font-medium text-gray-500">Digital Payments</span>
+                <div class="text-3xl font-bold text-gray-900 mt-1 tracking-tight">₱{{ number_format($digitalSales, 2) }}
+                </div>
+            </div>
+            <p class="text-xs text-gray-400 mt-2 font-medium uppercase tracking-wider">GCash & Bank Transfer</p>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <span class="text-sm font-medium text-gray-500">Total Orders</span>
-            <div class="text-3xl font-bold text-gray-900 mt-1 tracking-tight">{{ number_format($totalOrders) }}</div>
-            <p class="text-xs text-gray-500 mt-1">{{ $deliveredOrders }} Delivered • {{ $cancelledOrders }} Cancelled
+
+        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+            <div>
+                <span class="text-sm font-medium text-gray-500">Total Orders</span>
+                <div class="text-3xl font-bold text-gray-900 mt-1 tracking-tight">{{ number_format($totalOrders) }}
+                </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-2 font-medium">{{ $deliveredOrders }} Delivered &bull;
+                {{ $cancelledOrders }} Cancelled
             </p>
         </div>
     </div>
